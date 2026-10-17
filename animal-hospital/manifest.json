@@ -1,0 +1,15 @@
+{
+  "name": "untitled place",
+  "seed": 20260901,
+  "entry": "main.ts",
+  "scripts": [
+    "main.ts"
+  ],
+  "world": "flat",
+  "models": [
+    "hospital-chair.sdfmod"
+  ],
+  "levels": [
+    "animal-hospital.json"
+  ]
+}
