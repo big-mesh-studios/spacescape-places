@@ -6,6 +6,11 @@
     "main.ts"
   ],
   "world": "flat",
+  "spawn": [
+    -214,
+    -44,
+    320
+  ],
   "models": [
     "hospital-chair.sdfmod"
   ],
