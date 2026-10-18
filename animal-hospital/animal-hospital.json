@@ -670,7 +670,12 @@
           "z": 1000
         }
       },
-      "combine": "Add"
+      "combine": "Add",
+      "colour": {
+        "r": 33,
+        "g": 63,
+        "b": 96
+      }
     },
     {
       "kind": "shape",
@@ -825,12 +830,69 @@
       "figure": "prop",
       "model": "hospital-chair.sdfmod",
       "at": [
-        -214.5019883982314,
+        -68.90362754188705,
         -44.41599960620256,
-        320.77849378176006
+        176.52935211953545
       ],
-      "scale": 3.049999999999997,
-      "meshResolution": 0.12
+      "scale": 10,
+      "meshResolution": 0.12,
+      "yaw": 3.028
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -68.90362754188705,
+        -44.41599960620256,
+        197.83798908401116
+      ],
+      "scale": 10,
+      "meshResolution": 0.12,
+      "yaw": 3.028
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -68.90362754188705,
+        -44.41599960620256,
+        221.50082828566633
+      ],
+      "scale": 10,
+      "meshResolution": 0.12,
+      "yaw": 3.028
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -68.90362754188705,
+        -44.41599960620256,
+        246.05788435809413
+      ],
+      "scale": 10,
+      "meshResolution": 0.12,
+      "yaw": 3.028
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -68.90362754188705,
+        -44.41599960620256,
+        269.0583024720491
+      ],
+      "scale": 10,
+      "meshResolution": 0.12,
+      "yaw": 3.028
     }
   ],
   "imagePlane": {
