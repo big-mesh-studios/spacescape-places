@@ -28,9 +28,9 @@
       "kind": "walls",
       "id": "walls-107--291--36--25",
       "at": [
-        -290.9141,
+        -292.22121492845787,
         -41.4033,
-        -25.3969
+        -149.09645565730625
       ],
       "up": [
         0,
@@ -901,6 +901,216 @@
         62.9397
       ],
       "yaw": 3.028,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -371.31100000000004,
+        -52.8071,
+        62.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -371.31100000000004,
+        -52.8071,
+        57.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -371.31100000000004,
+        -52.8071,
+        52.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -371.31100000000004,
+        -52.8071,
+        47.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -371.31100000000004,
+        -52.8071,
+        42.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -358.31100000000004,
+        -52.8071,
+        42.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -358.31100000000004,
+        -52.8071,
+        47.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -358.31100000000004,
+        -52.8071,
+        52.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -358.31100000000004,
+        -52.8071,
+        57.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -358.31100000000004,
+        -52.8071,
+        62.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -346.31100000000004,
+        -52.8071,
+        62.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -346.31100000000004,
+        -52.8071,
+        57.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -346.31100000000004,
+        -52.8071,
+        52.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -346.31100000000004,
+        -52.8071,
+        47.9397
+      ],
+      "yaw": 0.027999999999999997,
+      "scale": 3,
+      "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--215--44-397-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2-2",
+      "figure": "prop",
+      "model": "hospital-chair.sdfmod",
+      "at": [
+        -346.31100000000004,
+        -52.8071,
+        42.9397
+      ],
+      "yaw": 0.027999999999999997,
       "scale": 3,
       "meshResolution": 0.12
     }
