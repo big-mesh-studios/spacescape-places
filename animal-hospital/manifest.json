@@ -12,9 +12,6 @@
     78.22
   ],
   "editable": false,
-  "models": [
-    "hospital-chair.sdfmod"
-  ],
   "mesh": {
     "lodSampleSizes": [
       3.2,
@@ -22,6 +19,9 @@
       12.8
     ]
   },
+  "models": [
+    "hospital-chair.sdfmod"
+  ],
   "levels": [
     "animal-hospital.json"
   ]

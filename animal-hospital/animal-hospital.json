@@ -17,7 +17,12 @@
           "z": 300
         }
       },
-      "combine": "Subtract"
+      "combine": "Subtract",
+      "colour": {
+        "r": 252,
+        "g": 19,
+        "b": 20
+      }
     },
     {
       "kind": "walls",
@@ -652,7 +657,12 @@
           "z": 12
         }
       },
-      "combine": "Subtract"
+      "combine": "Subtract",
+      "colour": {
+        "r": 252,
+        "g": 19,
+        "b": 20
+      }
     },
     {
       "kind": "shape",
@@ -834,9 +844,9 @@
         -52.8071,
         35.181
       ],
+      "yaw": 3.028,
       "scale": 3,
-      "meshResolution": 0.12,
-      "yaw": 3.028
+      "meshResolution": 0.12
     },
     {
       "kind": "figure",
@@ -848,9 +858,9 @@
         -52.8071,
         41.5736
       ],
+      "yaw": 3.028,
       "scale": 3,
-      "meshResolution": 0.12,
-      "yaw": 3.028
+      "meshResolution": 0.12
     },
     {
       "kind": "figure",
@@ -862,9 +872,9 @@
         -52.8071,
         48.6724
       ],
+      "yaw": 3.028,
       "scale": 3,
-      "meshResolution": 0.12,
-      "yaw": 3.028
+      "meshResolution": 0.12
     },
     {
       "kind": "figure",
@@ -876,9 +886,9 @@
         -52.8071,
         56.0395
       ],
+      "yaw": 3.028,
       "scale": 3,
-      "meshResolution": 0.12,
-      "yaw": 3.028
+      "meshResolution": 0.12
     },
     {
       "kind": "figure",
@@ -890,9 +900,9 @@
         -52.8071,
         62.9397
       ],
+      "yaw": 3.028,
       "scale": 3,
-      "meshResolution": 0.12,
-      "yaw": 3.028
+      "meshResolution": 0.12
     }
   ],
   "imagePlane": {
