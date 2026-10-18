@@ -1113,6 +1113,19 @@
       "yaw": 0.027999999999999997,
       "scale": 3,
       "meshResolution": 0.12
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-chair.sdfmod--190--44--22",
+      "figure": "prop",
+      "model": "hospital-bed.sdfmod",
+      "at": [
+        -182.59084066733712,
+        -52.91092788163075,
+        -24.89730339612138
+      ],
+      "scale": 7,
+      "meshResolution": 0.09999999999999996
     }
   ],
   "imagePlane": {

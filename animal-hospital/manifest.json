@@ -20,7 +20,8 @@
     ]
   },
   "models": [
-    "hospital-chair.sdfmod"
+    "hospital-chair.sdfmod",
+    "hospital-bed.sdfmod"
   ],
   "levels": [
     "animal-hospital.json"
