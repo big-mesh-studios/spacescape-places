@@ -7,14 +7,21 @@
   ],
   "world": "flat",
   "spawn": [
-    -214,
-    -44,
-    320
+    -267.84,
+    -51.4,
+    78.22
   ],
   "editable": false,
   "models": [
     "hospital-chair.sdfmod"
   ],
+  "mesh": {
+    "lodSampleSizes": [
+      3.2,
+      6.4,
+      12.8
+    ]
+  },
   "levels": [
     "animal-hospital.json"
   ]
