@@ -1,5 +1,5 @@
 {
-  "name": "untitled place",
+  "name": "animal-hospital",
   "seed": 20260901,
   "entry": "main.ts",
   "scripts": [
@@ -11,6 +11,7 @@
     -44,
     320
   ],
+  "editable": false,
   "models": [
     "hospital-chair.sdfmod"
   ],
