@@ -1116,13 +1116,65 @@
     },
     {
       "kind": "figure",
-      "id": "prop-hospital-chair.sdfmod--190--44--22",
+      "id": "prop-hospital-bed",
       "figure": "prop",
       "model": "hospital-bed.sdfmod",
       "at": [
         -182.59084066733712,
         -52.91092788163075,
         -24.89730339612138
+      ],
+      "scale": 7,
+      "meshResolution": 0.09999999999999996
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-bed-3",
+      "figure": "prop",
+      "model": "hospital-bed.sdfmod",
+      "at": [
+        -112.59084470667337,
+        -52.91092788163075,
+        -24.89730339612138
+      ],
+      "scale": 7,
+      "meshResolution": 0.09999999999999996
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-bed-3-2",
+      "figure": "prop",
+      "model": "hospital-bed.sdfmod",
+      "at": [
+        -64.59084470667337,
+        -52.91092788163075,
+        -59.89730339612138
+      ],
+      "scale": 7,
+      "meshResolution": 0.09999999999999996
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-bed-2",
+      "figure": "prop",
+      "model": "hospital-bed.sdfmod",
+      "at": [
+        -183.59084066733712,
+        -52.91092788163075,
+        -97.89730339612137
+      ],
+      "scale": 7,
+      "meshResolution": 0.09999999999999996
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-bed-2-2",
+      "figure": "prop",
+      "model": "hospital-bed.sdfmod",
+      "at": [
+        -109.59084066733712,
+        -52.91092788163075,
+        -97.89730339612137
       ],
       "scale": 7,
       "meshResolution": 0.09999999999999996
