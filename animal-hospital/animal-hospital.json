@@ -1224,6 +1224,43 @@
         "g": 19,
         "b": 20
       }
+    },
+    {
+      "kind": "shape",
+      "id": "reception-desk",
+      "at": [
+        -299.8046520600732,
+        -53.97159114565669,
+        -14.479719673987614
+      ],
+      "shape": {
+        "type": "Box",
+        "len": {
+          "x": 5,
+          "y": 3,
+          "z": 24
+        }
+      },
+      "combine": "Add",
+      "colour": {
+        "r": 77,
+        "g": 132,
+        "b": 78
+      }
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-computer",
+      "figure": "prop",
+      "model": "hospital-computer.sdfmod",
+      "at": [
+        -299.0545335721151,
+        -47.477859292136415,
+        -0.20632170468376998
+      ],
+      "yaw": -1.7,
+      "scale": 2.25,
+      "meshResolution": 0.01
     }
   ],
   "imagePlane": {
