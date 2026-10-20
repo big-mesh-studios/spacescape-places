@@ -17,7 +17,8 @@
       3.2,
       6.4,
       12.8
-    ]
+    ],
+    "sharpEdges": 35
   },
   "models": [
     "hospital-chair.sdfmod",
