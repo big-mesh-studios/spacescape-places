@@ -1178,6 +1178,52 @@
       ],
       "scale": 7,
       "meshResolution": 0.09999999999999996
+    },
+    {
+      "kind": "shape",
+      "id": "reception-cut-out",
+      "at": [
+        -294.8211275278285,
+        -42.81830100979519,
+        -12.703269239367593
+      ],
+      "shape": {
+        "type": "Box",
+        "len": {
+          "x": 5,
+          "y": 6,
+          "z": 24
+        }
+      },
+      "combine": "Subtract",
+      "colour": {
+        "r": 255,
+        "g": 19,
+        "b": 20
+      }
+    },
+    {
+      "kind": "shape",
+      "id": "reception-cut-out-2",
+      "at": [
+        -323.8211275278285,
+        -42.81830100979519,
+        13.296730760632407
+      ],
+      "shape": {
+        "type": "Box",
+        "len": {
+          "x": 24,
+          "y": 6,
+          "z": 5
+        }
+      },
+      "combine": "Subtract",
+      "colour": {
+        "r": 255,
+        "g": 19,
+        "b": 20
+      }
     }
   ],
   "imagePlane": {
