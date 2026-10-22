@@ -19,7 +19,8 @@
       12.8
     ],
     "sharpEdges": 35,
-    "splitColours": true
+    "splitColours": true,
+    "bakeOcclusion": 0.8
   },
   "models": [
     "hospital-chair.sdfmod",

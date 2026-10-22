@@ -19,18 +19,19 @@
       },
       "combine": "Subtract",
       "colour": {
-        "r": 252,
-        "g": 19,
-        "b": 20
-      }
+        "r": 206,
+        "g": 210,
+        "b": 197
+      },
+      "material": "plaster"
     },
     {
       "kind": "walls",
       "id": "walls-107--291--36--25",
       "at": [
-        -292.22121492845787,
+        -290.9141,
         -41.4033,
-        -149.09645565730625
+        -25.3969
       ],
       "up": [
         0,
@@ -633,13 +634,46 @@
         ]
       ],
       "height": 30,
-      "thickness": 8,
+      "thickness": 14,
       "combine": "Add",
       "colour": {
-        "r": 238,
-        "g": 17,
-        "b": 17
-      }
+        "r": 206,
+        "g": 210,
+        "b": 197
+      },
+      "softness": 0.2,
+      "material": "plaster",
+      "sides": [
+        "right",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre",
+        "centre"
+      ]
     },
     {
       "kind": "shape",
@@ -647,7 +681,7 @@
       "at": [
         -266.7888,
         -50.3235,
-        87.606
+        94.606
       ],
       "shape": {
         "type": "Box",
@@ -659,10 +693,11 @@
       },
       "combine": "Subtract",
       "colour": {
-        "r": 252,
-        "g": 19,
-        "b": 20
-      }
+        "r": 206,
+        "g": 210,
+        "b": 197
+      },
+      "material": "plaster"
     },
     {
       "kind": "shape",
@@ -682,17 +717,18 @@
       },
       "combine": "Add",
       "colour": {
-        "r": 33,
-        "g": 63,
-        "b": 96
-      }
+        "r": 92,
+        "g": 112,
+        "b": 116
+      },
+      "material": "tile"
     },
     {
       "kind": "shape",
       "id": "ceiling",
       "at": [
         -291.1644,
-        -23.1786,
+        -20,
         -25.7981
       ],
       "shape": {
@@ -819,7 +855,7 @@
             "z": -83.5025
           }
         ],
-        "len": 8
+        "len": 24
       },
       "combine": "Add",
       "orientation": [
@@ -829,10 +865,11 @@
         1
       ],
       "colour": {
-        "r": 29,
-        "g": 93,
-        "b": 77
-      }
+        "r": 216,
+        "g": 215,
+        "b": 205
+      },
+      "material": "plaster"
     },
     {
       "kind": "figure",
@@ -840,7 +877,7 @@
       "figure": "prop",
       "model": "hospital-chair.sdfmod",
       "at": [
-        -224.311,
+        -227.5,
         -52.8071,
         35.181
       ],
@@ -854,7 +891,7 @@
       "figure": "prop",
       "model": "hospital-chair.sdfmod",
       "at": [
-        -224.311,
+        -227.5,
         -52.8071,
         41.5736
       ],
@@ -868,7 +905,7 @@
       "figure": "prop",
       "model": "hospital-chair.sdfmod",
       "at": [
-        -224.311,
+        -227.5,
         -52.8071,
         48.6724
       ],
@@ -882,7 +919,7 @@
       "figure": "prop",
       "model": "hospital-chair.sdfmod",
       "at": [
-        -224.311,
+        -227.5,
         -52.8071,
         56.0395
       ],
@@ -896,7 +933,7 @@
       "figure": "prop",
       "model": "hospital-chair.sdfmod",
       "at": [
-        -224.311,
+        -227.5,
         -52.8071,
         62.9397
       ],
@@ -1183,55 +1220,57 @@
       "kind": "shape",
       "id": "reception-cut-out",
       "at": [
-        -294.8211275278285,
-        -42.81830100979519,
-        -12.703269239367593
+        -294.8211,
+        -42.8183,
+        -12.7033
       ],
       "shape": {
         "type": "Box",
         "len": {
-          "x": 5,
+          "x": 9,
           "y": 6,
           "z": 24
         }
       },
       "combine": "Subtract",
       "colour": {
-        "r": 255,
-        "g": 19,
-        "b": 20
-      }
+        "r": 92,
+        "g": 74,
+        "b": 52
+      },
+      "material": "timber"
     },
     {
       "kind": "shape",
       "id": "reception-cut-out-2",
       "at": [
-        -323.8211275278285,
-        -42.81830100979519,
-        13.296730760632407
+        -323.8211,
+        -42.8183,
+        13.2967
       ],
       "shape": {
         "type": "Box",
         "len": {
           "x": 24,
           "y": 6,
-          "z": 5
+          "z": 8
         }
       },
       "combine": "Subtract",
       "colour": {
-        "r": 255,
-        "g": 19,
-        "b": 20
-      }
+        "r": 92,
+        "g": 74,
+        "b": 52
+      },
+      "material": "timber"
     },
     {
       "kind": "shape",
       "id": "reception-desk",
       "at": [
-        -299.8046520600732,
-        -53.97159114565669,
-        -14.479719673987614
+        -305.4047,
+        -53.9716,
+        -14.4797
       ],
       "shape": {
         "type": "Box",
@@ -1243,10 +1282,11 @@
       },
       "combine": "Add",
       "colour": {
-        "r": 77,
-        "g": 132,
+        "r": 138,
+        "g": 112,
         "b": 78
-      }
+      },
+      "material": "timber"
     },
     {
       "kind": "figure",
@@ -1254,9 +1294,9 @@
       "figure": "prop",
       "model": "hospital-computer.sdfmod",
       "at": [
-        -299.0545335721151,
-        -47.477859292136415,
-        -0.20632170468376998
+        -304.6545,
+        -47.4779,
+        -0.2063
       ],
       "yaw": -1.7,
       "scale": 2.25,
