@@ -633,16 +633,6 @@
           ]
         ]
       ],
-      "height": 30,
-      "thickness": 14,
-      "combine": "Add",
-      "colour": {
-        "r": 206,
-        "g": 210,
-        "b": 197
-      },
-      "softness": 0.2,
-      "material": "plaster",
       "sides": [
         "right",
         "centre",
@@ -673,7 +663,17 @@
         "centre",
         "centre",
         "centre"
-      ]
+      ],
+      "height": 30,
+      "thickness": 14,
+      "combine": "Add",
+      "softness": 0.2,
+      "material": "plaster",
+      "colour": {
+        "r": 206,
+        "g": 210,
+        "b": 197
+      }
     },
     {
       "kind": "shape",
@@ -1301,6 +1301,20 @@
       "yaw": -1.7,
       "scale": 2.25,
       "meshResolution": 0.01
+    },
+    {
+      "kind": "figure",
+      "id": "prop-hospital-camera",
+      "figure": "prop",
+      "model": "hospital-camera.sdfmod",
+      "at": [
+        -303.2230975691116,
+        -46.48334553342808,
+        -18.8304681384177
+      ],
+      "scale": 1.7500000000000007,
+      "meshResolution": 0.01,
+      "yaw": 1.2
     }
   ],
   "imagePlane": {

@@ -25,7 +25,8 @@
   "models": [
     "hospital-chair.sdfmod",
     "hospital-bed.sdfmod",
-    "hospital-computer.sdfmod"
+    "hospital-computer.sdfmod",
+    "hospital-camera.sdfmod"
   ],
   "levels": [
     "animal-hospital.json"
