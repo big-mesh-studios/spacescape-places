@@ -16,7 +16,7 @@
     "lodSampleSizes": [
       3.2,
       6.4,
-      12.8
+      16
     ],
     "sharpEdges": 35,
     "splitColours": true,
