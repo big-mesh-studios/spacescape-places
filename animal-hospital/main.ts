@@ -108,6 +108,41 @@ $.createCamera({
   fov: 60,
 });
 
+/** Three live views covering the entrance, waiting room and patient ward. */
+const SECURITY_CAMERAS = [
+  {
+    id: "security-lobby",
+    at: [-260, -39, 74],
+    target: [-300, -51, 28],
+  },
+  {
+    id: "security-waiting",
+    at: [-385, -39, 4],
+    target: [-350, -51, 28],
+  },
+  {
+    id: "security-ward",
+    at: [-185, -39, -10],
+    target: [-195, -51, -49],
+  },
+] as const;
+
+for (const camera of SECURITY_CAMERAS) {
+  $.createCamera({ ...camera, fov: 65 });
+}
+
+/** Monitors on the anticlockwise side wall, clear of the wall face and turned toward reception. */
+for (const [index, camera] of SECURITY_CAMERAS.entries()) {
+  $.createScreen({
+    id: `security-monitor-${index + 1}`,
+    source: { camera: camera.id },
+    at: [-389.2, -47.5, -36.5 + index * 5.5],
+    yaw: Math.PI / 2,
+    width: 4,
+    height: 2.25,
+  });
+}
+
 /**
  * The id the level gave the camera model, and the two names the photo uses.
  *
