@@ -79,6 +79,13 @@ const PHOTO_DISAPPEAR_TIMEOUT_TICKS = 1000;
 let photoShown = false;
 let currentPhotoTimeoutTicks = 0;
 
+const FORMS_ID = "forms";
+const FORMS_LOCATION: [ number, number, number, ] = [ -301.29, -48.54, -14.02 ];
+const FORMS_YAW = 1.6;
+const FORMS_SCALE = 3.55;
+
+let formsShown = false;
+
 /**
  * The camera above the reception desk, as a viewpoint the engine can render through.
  *
@@ -206,6 +213,22 @@ function updatePhoto() {
   }
 }
 
+function showForms() {
+  $.createProp({
+    id: FORMS_ID,
+    at: FORMS_LOCATION,
+    yaw: FORMS_YAW,
+    model: "forms.sdfmod",
+    scale: FORMS_SCALE,
+  });
+  formsShown = true;
+}
+
+function hideForm() {
+  $.removeEntity(FORMS_ID);
+  formsShown = false;
+}
+
 function updatePatients() {
   for (let patient of patients) {
     switch (patient.stage) {
@@ -320,6 +343,7 @@ onTick((info: any) => {
     if (event.kind === "entity-used" && event.entityId === CAMERA_PROP) {
       photographReception();
       makePatentAtReceptionPatent();
+      showForms();
     }
   }
   updatePatients();
