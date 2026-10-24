@@ -1,4 +1,4 @@
-import { createNpc, createLight, level, log, onTick, moveEntity } from "voxelscape";
+import { createLight, createNpc, level, log, moveEntity, onTick, setEntityUseDuration } from "voxelscape";
 import * as $ from "voxelscape";
 
 level("animal-hospital.json");
@@ -221,6 +221,7 @@ function showForms() {
     model: "forms.sdfmod",
     scale: FORMS_SCALE,
   });
+  setEntityUseDuration(FORMS_ID, 4);
   formsShown = true;
 }
 
@@ -342,8 +343,10 @@ onTick((info: any) => {
     // which is why this only ever arrives for a prop.
     if (event.kind === "entity-used" && event.entityId === CAMERA_PROP) {
       photographReception();
-      makePatentAtReceptionPatent();
       showForms();
+    }
+    if (event.kind === "entity-used" && event.entityId === FORMS_ID) {
+      makePatentAtReceptionPatent();
     }
   }
   updatePatients();

@@ -272,6 +272,7 @@ declare module "voxelscape" {
    * way it was facing.
    */
   export function moveEntity(id: string, at: Vec3Like, yaw?: number): void;
+  export function setEntityUseDuration(id: string, seconds: number): void;
 
   /**
    * Takes whatever is standing under `id` out of the world.
