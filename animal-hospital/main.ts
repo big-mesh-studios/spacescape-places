@@ -67,12 +67,17 @@ type PatientStage =
   | "TurningTowardsCounter"
   | "WalkingToCounter2"
   | "WaitingAtCounter"
+  | "WaitingPatientlyAtCounter"
   | "WalkingToBed"
   | "WaitingInBed";
 
 const PATIENT_ENTRY_START_LOCATION: [ number, number, number, ] = [ -267, -52.5, 85, ];
 const COUNTER_Z = -15.0;
 const COUNTER_X = -290.0;
+const PHOTO_DISAPPEAR_TIMEOUT_TICKS = 1000;
+
+let photoShown = false;
+let currentPhotoTimeoutTicks = 0;
 
 /**
  * The camera above the reception desk, as a viewpoint the engine can render through.
@@ -182,6 +187,23 @@ function photographReception() {
     width: 256,
     height: 144,
   });
+  photoShown = true;
+}
+
+function clearPhoto() {
+  $.hideImage(RECEPTION_IMAGE);
+  $.removePhoto(RECEPTION_PHOTO);
+  photoShown = false;
+}
+
+function updatePhoto() {
+  if (photoShown) {
+    ++currentPhotoTimeoutTicks;
+    if (currentPhotoTimeoutTicks >= PHOTO_DISAPPEAR_TIMEOUT_TICKS) {
+      clearPhoto();
+      currentPhotoTimeoutTicks = 0;
+    }
+  }
 }
 
 function updatePatients() {
@@ -198,6 +220,9 @@ function updatePatients() {
         break;
       case "WaitingAtCounter":
         updatePatientWaitingAtCounter(patient);
+        break;
+      case "WaitingPatientlyAtCounter":
+        updatePatientWaitingPatientlyAtCounter(patient);
         break;
       case "WalkingToBed":
         updatePatientWalkingToBed(patient);
@@ -258,10 +283,29 @@ function updatePatientWaitingAtCounter(patient: Patient) {
   patient.tickCounter1++;
 }
 
+function updatePatientWaitingPatientlyAtCounter(patient: Patient) {
+  $.narrate(patient.id, "");
+  patient.tickCounter1++;
+  if (patient.tickCounter1 > 2000) {
+    patient.tickCounter1 = 0;
+    patient.stage = "WaitingAtCounter";
+  }
+}
+
 function updatePatientWalkingToBed(patient: Patient) {
 }
 
 function updatePatientWaitingInBed(patient: Patient) {
+}
+
+function makePatentAtReceptionPatent() {
+  for (let patient of patients) {
+    if (patient.stage === "WaitingAtCounter") {
+      patient.stage = "WaitingPatientlyAtCounter";
+      patient.tickCounter1 = 0;
+      break;
+    }
+  }
 }
 
 spawnPatient();
@@ -275,8 +319,10 @@ onTick((info: any) => {
     // which is why this only ever arrives for a prop.
     if (event.kind === "entity-used" && event.entityId === CAMERA_PROP) {
       photographReception();
+      makePatentAtReceptionPatent();
     }
   }
   updatePatients();
+  updatePhoto();
 });
 
