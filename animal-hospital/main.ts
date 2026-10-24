@@ -62,16 +62,25 @@ const patientKinds: { name: string, model: string, }[] = [
   { name: "Melty", model: "melty.sdfmod", },
 ];
 
-type PatientStage = "WalkingToCounter" | "TurningTowardsCounter" | "WaitingAtCounter" | "WalkingToBed" | "WaitingInBed";
+type PatientStage = 
+  | "WalkingToCounter"
+  | "TurningTowardsCounter"
+  | "WalkingToCounter2"
+  | "WaitingAtCounter"
+  | "WalkingToBed"
+  | "WaitingInBed";
 
 const PATIENT_ENTRY_START_LOCATION: [ number, number, number, ] = [ -267, -52.5, 85, ];
 const COUNTER_Z = -15.0;
+const COUNTER_X = -290.0;
 
 type Patient = {
   id: string,
   stage: PatientStage,
   location: [ number, number, number, ],
   yaw: number,
+  // used for timing stuff
+  tickCounter1: number,
 };
 
 const patients: Patient[] = [];
@@ -94,6 +103,7 @@ function spawnPatient(): string {
     stage: "WalkingToCounter",
     location,
     yaw: Math.PI,
+    tickCounter1: 0,
   });
   return id;
 }
@@ -106,6 +116,9 @@ function updatePatients() {
         break;
       case "TurningTowardsCounter":
         updatePatientTurningTowardsCounter(patient); 
+        break;
+      case "WalkingToCounter2":
+        updatePatientWalkingToCounter2(patient);
         break;
       case "WaitingAtCounter":
         updatePatientWaitingAtCounter(patient);
@@ -137,12 +150,36 @@ function updatePatientTurningTowardsCounter(patient: Patient) {
   patient.yaw += 0.1;
   if (patient.yaw >= 3.0 * Math.PI / 2) {
     patient.yaw = -0.5 * Math.PI;
-    patient.stage = "WaitingAtCounter";
+    patient.stage = "WalkingToCounter2";
   }
   moveEntity(patient.id, patient.location, patient.yaw);
 }
 
+function updatePatientWalkingToCounter2(patient: Patient) {
+  patient.location[0] -= 0.3;
+  if (patient.location[0] <= COUNTER_X) {
+    patient.location[0] = COUNTER_X;
+    patient.stage = "WaitingAtCounter";
+    patient.tickCounter1 = 0;
+  }
+  moveEntity(patient.id, patient.location);
+}
+
 function updatePatientWaitingAtCounter(patient: Patient) {
+  if (patient.tickCounter1 === 0) {
+    $.narrate(patient.id, "Hello!");
+  } else if (patient.tickCounter1 === 300) {
+    $.narrate(patient.id, "I am here for an appointment.");
+  } else if (patient.tickCounter1 === 600) {
+    $.narrate(patient.id, "");
+  } else if (patient.tickCounter1 === 900) {
+    $.narrate(patient.id, "Hello! Is anybody there?");
+  } else if (patient.tickCounter1 === 1200) {
+    $.narrate(patient.id, "");
+  } else if (patient.tickCounter1 === 1500) {
+    $.narrate(patient.id, "Hello Hello Hello!!! Does anybody work here!!!");
+  }
+  patient.tickCounter1++;
 }
 
 function updatePatientWalkingToBed(patient: Patient) {
