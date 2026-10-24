@@ -5,9 +5,13 @@
  * that is the specifier a place writes: `import { createShape } from "voxelscape"`. It is not a
  * package — it is the guest library spacescape bundles into the place's interpreter. This
  * declaration is a hand-maintained snapshot of that library, copied from
- * `apps/spacescape/src/places/guest/place-api.ts` at commit `9c2c627`, so editors outside the
- * spacescape repository can complete the place API. It is not generated, and it will need
- * updating when the guest library changes.
+ * `apps/spacescape/src/places/guest/place-api.ts`, so editors outside the spacescape repository
+ * can complete the place API. It is not generated, and it will need updating when the guest
+ * library changes.
+ *
+ * The current snapshot includes the camera, photo, screen and HUD-image API that arrived with
+ * `@random-mesh/rmsl` 1.17.0 — `createCamera` and friends, `takePhoto`, `createScreen`, and
+ * `showImage`.
  *
  * The file carries no top-level `import` or `export` on purpose: a `.d.ts` reached through
  * `paths` is resolved as a module, and a `declare module` inside a module augments a module that
@@ -427,8 +431,154 @@ declare module "voxelscape" {
     fov?: number,
   ): void;
 
-  /** Gives the camera back to the player. */
+  /** Gives the camera back to the player, whether it was aimed or taken over by a virtual camera. */
   export function clearCamera(): void;
+
+  /* ----------------------------------------------------------- virtual cameras */
+
+  /**
+   * A viewpoint the place owns, rather than one the player is inside.
+   *
+   * `at` and `target` rather than position and rotation, because a security camera is aimed at
+   * something — a door, a till, a corridor — and the two points are also what a screen shows
+   * without a second definition.
+   */
+  export interface CreateCameraOptions {
+    /** A name the caller chose. Two peers running the same script must agree on it. */
+    readonly id: string;
+    /** Where the camera is. */
+    readonly at: Vec3Like;
+    /** The point it looks at. */
+    readonly target: Vec3Like;
+    /**
+     * The vertical field of view in degrees, 1 to 179. Omitted means the player's own field of
+     * view, which is what makes a camera view feel like the same world seen from elsewhere.
+     */
+    readonly fov?: number;
+  }
+
+  /** Places a virtual camera. Nothing looks through it until something watches it or shows it. */
+  export function createCamera(options: CreateCameraOptions): void;
+
+  /**
+   * Moves a virtual camera, or changes its lens. Every field is optional and an absent one is
+   * unchanged, so panning is one field rather than the whole definition repeated.
+   */
+  export function moveCamera(
+    id: string,
+    options: { at?: Vec3Like; target?: Vec3Like; fov?: number },
+  ): void;
+
+  /** Removes a virtual camera by id, and anything that was showing it. */
+  export function removeCamera(id: string): void;
+
+  /**
+   * Takes the player's view over and puts it at a camera, until `clearCamera`.
+   *
+   * This player only: two peers watching the same camera are two views of one world from the same
+   * place.
+   */
+  export function watchCamera(id: string): void;
+
+  /* -------------------------------------------------------------------- photos */
+
+  /**
+   * A picture this machine has taken.
+   *
+   * An id and a size, and deliberately nothing else. The pixels never cross the sandbox: a script
+   * can show a photo or put it on a screen, and cannot read it, hash it or send it anywhere.
+   */
+  export interface Photo {
+    readonly id: string;
+    readonly width: number;
+    readonly height: number;
+  }
+
+  /**
+   * Renders one frame and keeps it.
+   *
+   * Returns before the pixels exist, so a script can show the photo immediately and watch it fill
+   * in a frame or two later. The picture is of the world rather than of the screen, so it never
+   * contains the crosshair, a dialog or the HUD. Omit `camera` for the player's own view.
+   */
+  export function takePhoto(options: {
+    readonly id: string;
+    readonly camera?: string;
+    readonly width?: number;
+    readonly height?: number;
+  }): Photo;
+
+  /** Forgets a photo, freeing its pixels and removing anything that was showing it. */
+  export function removePhoto(id: string): void;
+
+  /* ---------------------------------------------------- screens and HUD images */
+
+  /**
+   * What a screen or a HUD image shows: a camera is live, a photo is a picture that was taken.
+   */
+  export type ImageSource =
+    | { readonly camera: string }
+    | { readonly photo: string };
+
+  /** The corners a HUD image may sit in. */
+  export type HudCorner =
+    | "top-left"
+    | "top-right"
+    | "bottom-left"
+    | "bottom-right";
+
+  /**
+   * A surface in the world showing a camera or a photo.
+   *
+   * **The resolution is not yours to choose.** It follows the screen's size on screen, so a monitor
+   * across a room renders small and the one in front of the player renders sharp.
+   */
+  export interface CreateScreenOptions {
+    readonly id: string;
+    readonly source: ImageSource;
+    readonly at: Vec3Like;
+    /** A turn about up, in radians. The picture faces this way. */
+    readonly yaw: number;
+    /** How wide, in world units. */
+    readonly width: number;
+    /** How tall, in world units. */
+    readonly height: number;
+  }
+
+  /** Puts a screen in the world. Only the screens nearest the player are redrawn in a frame. */
+  export function createScreen(options: CreateScreenOptions): void;
+
+  /** Moves, resizes or re-aims a screen, or changes what it shows. */
+  export function moveScreen(
+    id: string,
+    options: {
+      readonly source?: ImageSource;
+      readonly at?: Vec3Like;
+      readonly yaw?: number;
+      readonly width?: number;
+      readonly height?: number;
+    },
+  ): void;
+
+  /** Removes a screen by id. */
+  export function removeScreen(id: string): void;
+
+  /**
+   * Shows a camera or a photo in a corner of this player's screen.
+   *
+   * A HUD image is not in the world, so nothing else can see it and nothing can walk in front of
+   * it. `corner` omitted means `top-right`; the size is in CSS pixels, 16 to 512.
+   */
+  export function showImage(options: {
+    readonly id: string;
+    readonly source: ImageSource;
+    readonly corner?: HudCorner;
+    readonly width: number;
+    readonly height: number;
+  }): void;
+
+  /** Takes a HUD image away. A no-op when there was none. */
+  export function hideImage(id: string): void;
 
   /* -------------------------------------------------------------------- output */
 
