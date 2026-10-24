@@ -74,6 +74,43 @@ const PATIENT_ENTRY_START_LOCATION: [ number, number, number, ] = [ -267, -52.5,
 const COUNTER_Z = -15.0;
 const COUNTER_X = -290.0;
 
+/**
+ * The camera above the reception desk, as a viewpoint the engine can render through.
+ *
+ * **The model at `prop-hospital-camera` is scenery; a camera is a position, a target and a lens.**
+ * They are two things on purpose — a place can turn one without the other — so this is written
+ * where the model was placed and looks where the model points: at `COUNTER_X`/`COUNTER_Z`, the spot
+ * a patient stops on to talk.
+ *
+ * It is a touch in front of the model rather than inside it, because a camera at the centre of its
+ * own housing photographs the housing. The lens is wider than the player's own eye, the way a
+ * security camera's is: it covers the desk and the room in front of it rather than looking at one
+ * thing.
+ */
+const RECEPTION_CAMERA = "reception-camera";
+
+$.createCamera({
+  id: RECEPTION_CAMERA,
+  at: [ -299.6, -45.4, -17.4, ],
+  target: [ COUNTER_X, -46, COUNTER_Z, ],
+  fov: 60,
+});
+
+/**
+ * The id the level gave the camera model, and the two names the photo uses.
+ *
+ * **A level figure is a figure like any other**, so the player can aim at it and press use: it lives
+ * in the same id space a script's `createProp` writes to, under the engine's `level/` prefix. That
+ * is what lets this demo photograph through the camera the level already has, instead of the place
+ * placing a second one to point at.
+ *
+ * The photo and the HUD image are separate names because they are separate things: a picture, and a
+ * corner of the screen that shows one.
+ */
+const CAMERA_PROP = "level/prop-hospital-camera";
+const RECEPTION_PHOTO = "reception-photo";
+const RECEPTION_IMAGE = "reception-image";
+
 type Patient = {
   id: string,
   stage: PatientStage,
@@ -106,6 +143,45 @@ function spawnPatient(): string {
     tickCounter1: 0,
   });
   return id;
+}
+
+/**
+ * Takes a picture through the reception camera, when the player uses the prop.
+ *
+ * **`takePhoto` returns before the pixels exist.** The id, width and height are known immediately,
+ * so the photo can be shown straight away and fills in a frame or two later; there is no callback
+ * and no event to wait for. That is why `showImage` below can name a picture the renderer has not
+ * drawn yet — a photo is a thing that becomes true, like a `toast` appearing on the next frame.
+ *
+ * **The picture is of the world, not of the screen.** It comes from a fresh pass through the scene,
+ * so it is of whoever is at the desk and never contains the crosshair, a dialog or the HUD — not
+ * even this corner image, which would otherwise be a camera photographing its own monitor.
+ *
+ * Taking one needs a free id, so the previous shot goes first. Removing a photo also removes
+ * anything showing it, so the image is put back with the new source; both calls land in the same
+ * tick, so the player never sees the gap.
+ *
+ * **Showing `{ camera: RECEPTION_CAMERA }` instead would make the image live** — the same corner,
+ * redrawn rather than frozen. That is the whole difference between the two sources, and it is one
+ * field.
+ *
+ * Omit `camera` on `takePhoto` to photograph the player's own view instead — again, one field less.
+ */
+function photographReception() {
+  $.removePhoto(RECEPTION_PHOTO);
+  $.takePhoto({
+    id: RECEPTION_PHOTO,
+    camera: RECEPTION_CAMERA,
+    width: 640,
+    height: 360,
+  });
+  $.showImage({
+    id: RECEPTION_IMAGE,
+    source: { photo: RECEPTION_PHOTO, },
+    corner: "top-right",
+    width: 256,
+    height: 144,
+  });
 }
 
 function updatePatients() {
@@ -194,6 +270,12 @@ onTick((info: any) => {
   for (const event of info.events) {
     if (event.kind === "zone-entered") log(`arrived at ${event.zoneId}`);
     if (event.kind === "zone-left") log(`left ${event.zoneId}`);
+    // **Use on the camera is the shutter.** The prop is a figure in the level, so the player can
+    // aim at it and press use like any other; empty hands on a character is a conversation instead,
+    // which is why this only ever arrives for a prop.
+    if (event.kind === "entity-used" && event.entityId === CAMERA_PROP) {
+      photographReception();
+    }
   }
   updatePatients();
 });
