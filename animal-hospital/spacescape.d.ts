@@ -739,6 +739,11 @@ declare module "spacescape" {
     readonly position: Vec3Like;
     /** A turn about up, in radians: local when attached, otherwise world-space. */
     readonly yaw?: number;
+    /**
+     * Tilt from upright, in radians. Zero stands the panel up; `Math.PI / 2` lays it face-up.
+     * Applied after `yaw`, about the panel's own right axis.
+     */
+    readonly pitch?: number;
     /** How wide, in the same units as `position`. */
     readonly width: number;
     /** How tall, in the same units as `position`. */

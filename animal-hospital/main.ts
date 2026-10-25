@@ -88,6 +88,7 @@ const LABEL_ID = "label";
 const LABEL_LOCATION: [ number, number, number, ] = [ -304.0, -48.8, -3.0, ];
 const LABEL_YAW = 0.4;
 const LABEL_SCALE = 1.75;
+const LABEL_NAME_PANEL_ID = "label-patient-name";
 
 let formsShown = false;
 let formFilledOut = false;
@@ -233,6 +234,7 @@ function updateComputerPanel(now: number) {
 
 type Patient = {
   id: string,
+  name: string,
   stage: PatientStage,
   location: [ number, number, number, ],
   yaw: number,
@@ -257,6 +259,7 @@ function spawnPatient(): string {
   });
   patients.push({
     id,
+    name: patientKind.name,
     stage: "WalkingToCounter",
     location,
     yaw: Math.PI,
@@ -457,6 +460,18 @@ function giveLabelToPatient(patient: Patient) {
   holdingLabel = false;
 }
 
+/**
+ * The patient the printed label belongs to.
+ *
+ * **The one whose forms are done and who is waiting at the desk**, so the name on the label is
+ * the name of the person the label is for rather than whoever happens to be first in the list.
+ * There is a fallback because a label can still be printed if the queue changes underneath it.
+ */
+function patientForLabel(): Patient | undefined {
+  return patients.find(patient => patient.stage === "WaitingPatientlyAtCounter")
+    ?? patients.find(patient => patient.stage === "WaitingAtCounter");
+}
+
 function printLabel() {
   $.createProp({
     id: LABEL_ID,
@@ -465,6 +480,28 @@ function printLabel() {
     model: "label.sdfmod",
     scale: LABEL_SCALE,
   });
+
+  /**
+   * **The same attached HUD panel as the computer screen, laid on the printed label.** The
+   * label model is a flat plate lying in its own XZ plane, and `pitch: Math.PI / 2` turns the
+   * panel's normal from horizontal to straight up so the name lies on the plate rather than
+   * standing above it. Attaching it means it follows the label, and removing the label removes
+   * the panel with it.
+   */
+  const patient = patientForLabel();
+  $.createHudPanel({
+    id: LABEL_NAME_PANEL_ID,
+    entityId: LABEL_ID,
+    position: [ 0, 0.3, 0, ],
+    yaw: 0,
+    pitch: Math.PI / 2,
+    width: 1.3,
+    height: 0.65,
+    label: patient?.name ?? "Patient",
+    value: 1,
+    max: 1,
+  });
+
   labelPrinted = true;
 }
 
