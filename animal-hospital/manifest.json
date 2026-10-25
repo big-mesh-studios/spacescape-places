@@ -29,7 +29,8 @@
     "hospital-camera.sdfmod",
     "hospital-printer.sdfmod",
     "melty.sdfmod",
-    "forms.sdfmod"
+    "forms.sdfmod",
+    "label.sdfmod"
   ],
   "levels": [
     "animal-hospital.json"

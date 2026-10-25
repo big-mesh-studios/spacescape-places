@@ -84,7 +84,16 @@ const FORMS_LOCATION: [ number, number, number, ] = [ -301.29, -48.54, -14.02 ];
 const FORMS_YAW = 1.6;
 const FORMS_SCALE = 3.55;
 
+const LABEL_ID = "label";
+const LABEL_LOCATION: [ number, number, number, ] = [ -304.0, -48.8, -3.0, ];
+const LABEL_YAW = 0.4;
+const LABEL_SCALE = 1.75;
+
 let formsShown = false;
+let formFilledOut = false;
+let computerProcessedForms = false;
+let labelPrinted = false;
+let holdingLabel = false;
 
 /**
  * The camera above the reception desk, as a viewpoint the engine can render through.
@@ -157,6 +166,10 @@ for (const [index, camera] of SECURITY_CAMERAS.entries()) {
 const CAMERA_PROP = "level/prop-hospital-camera";
 const RECEPTION_PHOTO = "reception-photo";
 const RECEPTION_IMAGE = "reception-image";
+const COMPUTER_PROP = "level/prop-hospital-computer";
+const PRINTER_PROP = "level/prop-hospital-printer";
+
+setEntityUseDuration(COMPUTER_PROP, 4);
 
 type Patient = {
   id: string,
@@ -357,6 +370,12 @@ function updatePatientWalkingToBed(patient: Patient) {
 function updatePatientWaitingInBed(patient: Patient) {
 }
 
+function fillOutForms() {
+  formFilledOut = true;
+  hideForm();
+  makePatentAtReceptionPatent();
+}
+
 function makePatentAtReceptionPatent() {
   for (let patient of patients) {
     if (patient.stage === "WaitingAtCounter") {
@@ -365,6 +384,22 @@ function makePatentAtReceptionPatent() {
       break;
     }
   }
+}
+
+function printLabel() {
+  $.createProp({
+    id: LABEL_ID,
+    at: LABEL_LOCATION,
+    yaw: LABEL_YAW,
+    model: "label.sdfmod",
+    scale: LABEL_SCALE,
+  });
+  labelPrinted = true;
+}
+
+function takeLabel() {
+  $.removeEntity(LABEL_ID);
+  holdingLabel = true;
 }
 
 spawnPatient();
@@ -378,10 +413,26 @@ onTick((info: any) => {
     // which is why this only ever arrives for a prop.
     if (event.kind === "entity-used" && event.entityId === CAMERA_PROP) {
       photographReception();
-      showForms();
+      if (!formsShown && !formFilledOut) {
+        showForms();
+      }
     }
     if (event.kind === "entity-used" && event.entityId === FORMS_ID) {
-      makePatentAtReceptionPatent();
+      fillOutForms();
+    }
+    if (event.kind === "entity-used" && event.entityId === COMPUTER_PROP) {
+      if (!computerProcessedForms) {
+        computerProcessedForms = true;
+      }
+    }
+    if (event.kind === "entity-used" && event.entityId === PRINTER_PROP) {
+      if (computerProcessedForms && !labelPrinted) {
+        $.log("PRINTER");
+        printLabel();
+      }
+    }
+    if (event.kind === "entity-used" && event.entityId === LABEL_ID) {
+      takeLabel();
     }
   }
   updatePatients();
