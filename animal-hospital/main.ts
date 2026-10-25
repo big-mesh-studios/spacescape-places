@@ -1,5 +1,5 @@
-import { createLight, createNpc, level, log, moveEntity, onTick, setEntityUseDuration } from "voxelscape";
-import * as $ from "voxelscape";
+import { createLight, createNpc, level, log, moveEntity, onTick, setEntityUseDuration } from "spacescape";
+import * as $ from "spacescape";
 
 level("animal-hospital.json");
 
@@ -170,6 +170,66 @@ const COMPUTER_PROP = "level/prop-hospital-computer";
 const PRINTER_PROP = "level/prop-hospital-printer";
 
 setEntityUseDuration(COMPUTER_PROP, 4);
+
+/**
+ * A progress panel on the reception computer's screen.
+ *
+ * **This is the world-space sibling of the HUD meter**, not an image or a screen: the engine
+ * draws a labelled quad at a position in the world, so it turns with the model it is attached
+ * to. Setting `entityId` changes what `position` and `yaw` mean — the offset is then local to
+ * that figure, and the figure's own scale applies to the offset and to `width`/`height` too.
+ * Omit `entityId` and the same fields are world-space, and the panel stands still.
+ *
+ * The computer model's screen faces local +Z at about z = 0.6; 1.1 by 0.55 keeps the texture's
+ * 2:1 shape and leaves a bezel. Both the offset and the size are worth nudging in the editor.
+ *
+ * **`value`/`max` is the fraction drawn**, so any pair of numbers works — 3/12 and 25/100 look
+ * the same. `setValue` and `setLabel` update the panel in place through the handle, which is
+ * also why `createHudPanel` should be called once rather than every tick: a panel occupies one
+ * of the place's 64 slots until `remove` is called.
+ */
+const COMPUTER_PANEL_ID = "reception-computer-panel";
+const COMPUTER_PANEL_PERIOD_MS = 8000;
+
+const computerPanel = $.createHudPanel({
+  id: COMPUTER_PANEL_ID,
+  entityId: COMPUTER_PROP,
+  position: [ 0, 0, 0.62, ],
+  yaw: 0,
+  width: 1.1,
+  height: 0.55,
+  label: "Waiting for forms",
+  value: 0,
+  max: 100,
+});
+
+let computerPanelValue = -1;
+let computerPanelLabel = "Waiting for forms";
+
+/**
+ * Drives the panel in a loop, so the bar moves without the player having to use anything.
+ *
+ * **A demo of the API rather than the computer's real workload.** Replace `phase` with whatever
+ * the place is counting — forms filled in, patients seen — and call `setValue` when that number
+ * actually changes. The guards are there because `setValue` sends an update even when the number
+ * is the same, and a panel only needs redrawing when its label or fraction has moved.
+ */
+function updateComputerPanel(now: number) {
+  const phase = (now % COMPUTER_PANEL_PERIOD_MS) / COMPUTER_PANEL_PERIOD_MS;
+  const value = Math.floor(phase * 100);
+  if (value !== computerPanelValue) {
+    computerPanelValue = value;
+    computerPanel.setValue(value);
+  }
+  const label =
+    value < 15 ? "Waiting for forms" :
+    value < 95 ? "Processing forms" :
+    "Forms ready";
+  if (label !== computerPanelLabel) {
+    computerPanelLabel = label;
+    computerPanel.setLabel(label);
+  }
+}
 
 type Patient = {
   id: string,
@@ -455,5 +515,6 @@ onTick((info: any) => {
   }
   updatePatients();
   updatePhoto();
+  updateComputerPanel(info.now);
 });
 

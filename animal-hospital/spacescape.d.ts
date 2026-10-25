@@ -1,23 +1,23 @@
 /**
- * The types for a spacescape place script's `voxelscape` import.
+ * The types for a spacescape place script's `spacescape` import.
  *
- * The file is named for the application, but the module it declares is `"voxelscape"` because
- * that is the specifier a place writes: `import { createShape } from "voxelscape"`. It is not a
- * package — it is the guest library spacescape bundles into the place's interpreter. This
- * declaration is a hand-maintained snapshot of that library, copied from
+ * The module is the guest library spacescape bundles into the place's interpreter, so a place
+ * writes `import { createShape } from "spacescape"`. It is not a package. This declaration is a
+ * hand-maintained snapshot of that library, copied from
  * `apps/spacescape/src/places/guest/place-api.ts`, so editors outside the spacescape repository
  * can complete the place API. It is not generated, and it will need updating when the guest
  * library changes.
  *
  * The current snapshot includes the camera, photo, screen and HUD-image API that arrived with
  * `@random-mesh/rmsl` 1.17.0 — `createCamera` and friends, `takePhoto`, `createScreen`, and
- * `showImage`.
+ * `showImage` — plus the HUD meter, HUD label and world-space HUD panel API, and the shared
+ * beam, particle and sound effects.
  *
  * The file carries no top-level `import` or `export` on purpose: a `.d.ts` reached through
  * `paths` is resolved as a module, and a `declare module` inside a module augments a module that
  * has to exist somewhere else. Kept as an ambient declaration, this file is simply the module.
  */
-declare module "voxelscape" {
+declare module "spacescape" {
   /**
    * Thrown when the host refuses an effect.
    *
@@ -311,6 +311,12 @@ declare module "voxelscape" {
 
   /* -------------------------------------------------------------------- lights */
 
+  /** A light a place script created. Removing the handle turns it off. */
+  export interface LightHandle {
+    readonly id: string;
+    remove(): void;
+  }
+
   /** What `createLight` takes: an id, where it is, its colour, how far it reaches, and how bright it is where it stops. */
   export interface CreateLightOptions {
     /** Its name, and how it is referred to when removed. Never generated. */
@@ -335,10 +341,103 @@ declare module "voxelscape" {
   }
 
   /** Creates a light. Replaces any light with the same id, so re-running a script does not stack lamps. */
-  export function createLight(options: CreateLightOptions): void;
+  export function createLight(options: CreateLightOptions): LightHandle;
 
   /** Takes a light away. Doing nothing when there is none. */
   export function removeLight(id: string): void;
+
+  /* ------------------------------------------------------------------- sounds */
+
+  /** Playback settings for `playSound`. */
+  export interface PlaySoundOptions {
+    /** A name for stopping this playback later. Required when looping. */
+    readonly id?: string;
+    /** Playback volume, zero to one. */
+    readonly volume?: number;
+    /** Playback rate, 0.25 to four. */
+    readonly pitch?: number;
+    /** Keep playing until the handle is stopped. */
+    readonly loop?: boolean;
+  }
+
+  /** A sound playback. A one-shot sound has an empty id. */
+  export interface SoundHandle {
+    readonly id: string;
+    stop(): void;
+  }
+
+  /** Plays a sound file named in the place manifest. The name is its manifest path. */
+  export function playSound(
+    name: string,
+    options?: PlaySoundOptions,
+  ): SoundHandle;
+
+  /** Stops a named sound playback. */
+  export function stopSound(id: string): void;
+
+  /* ---------------------------------------------------- shared visual effects */
+
+  /**
+   * A beam from a point to a point, or from an entity to an entity.
+   *
+   * Give one of `from`/`fromEntity` and one of `to`/`toEntity`; the host refuses a beam with
+   * neither end or with both forms on the same end.
+   */
+  export interface CreateBeamOptions {
+    readonly id: string;
+    /** Linear RGB, zero to one. */
+    readonly color?: readonly [number, number, number];
+    readonly width?: number;
+    readonly fromEntity?: string;
+    readonly from?: Vec3Like;
+    readonly toEntity?: string;
+    readonly to?: Vec3Like;
+  }
+
+  /** A beam placed by a place script. */
+  export interface BeamHandle {
+    readonly id: string;
+    remove(): void;
+  }
+
+  /** Draws a line between world points or entities. */
+  export function createBeam(options: CreateBeamOptions): BeamHandle;
+
+  /** The portable particle kinds supported by both engines. */
+  export type ParticleKind = "spark" | "flame" | "smoke" | "dust";
+
+  /**
+   * A particle emitter at a world point or over an entity.
+   *
+   * The `kind` picks a baseline look; the remaining fields override it. Attaching with
+   * `entityId` makes the emitter follow the entity and ignores `x`/`y`/`z`.
+   */
+  export interface CreateParticleOptions {
+    readonly id: string;
+    readonly kind?: ParticleKind;
+    readonly entityId?: string;
+    readonly x?: number;
+    readonly y?: number;
+    readonly z?: number;
+    /** Linear RGB, zero to one. */
+    readonly color?: readonly [number, number, number];
+    readonly size?: number;
+    readonly spread?: number;
+    readonly lifeMs?: number;
+    /** Continue emitting until the handle is removed. */
+    readonly loop?: boolean;
+  }
+
+  /** A particle emitter placed by a place script. */
+  export interface ParticleHandle {
+    readonly id: string;
+    remove(): void;
+  }
+
+  /** Runs a particle emitter at a point or over an entity. */
+  export function createParticle(
+    options: CreateParticleOptions,
+  ): ParticleHandle;
 
   /* -------------------------------------------------------------------- fields */
 
@@ -580,6 +679,99 @@ declare module "voxelscape" {
 
   /** Takes a HUD image away. A no-op when there was none. */
   export function hideImage(id: string): void;
+
+  /* ------------------------------------------------------- HUD meters and labels */
+
+  /** What `createHudMeter` takes: a labelled bar in a corner of this player's screen. */
+  export interface CreateHudMeterOptions {
+    readonly id: string;
+    readonly label: string;
+    readonly value: number;
+    readonly max: number;
+  }
+
+  /** A HUD meter that can be changed in place or removed. */
+  export interface HudMeterHandle {
+    readonly id: string;
+    setValue(value: number): void;
+    setLabel(label: string): void;
+    remove(): void;
+  }
+
+  /** Creates a labelled bar on the HUD; update it with the handle rather than by id. */
+  export function createHudMeter(
+    options: CreateHudMeterOptions,
+  ): HudMeterHandle;
+
+  /** What `createHudLabel` takes: a line of text in a corner of this player's screen. */
+  export interface CreateHudLabelOptions {
+    readonly id: string;
+    readonly text: string;
+  }
+
+  /** A HUD label that can be changed in place or removed. */
+  export interface HudLabelHandle {
+    readonly id: string;
+    setText(text: string): void;
+    remove(): void;
+  }
+
+  /** Creates a line of text on the HUD; update it with the handle rather than by id. */
+  export function createHudLabel(
+    options: CreateHudLabelOptions,
+  ): HudLabelHandle;
+
+  /* ----------------------------------------------------------------- HUD panels */
+
+  /**
+   * What `createHudPanel` takes: a labelled progress quad in the world.
+   *
+   * **Attach it or not with `entityId`.** Attached, `position` and `yaw` are offsets from the
+   * figure's own origin and turn, and the figure's scale applies to both the offset and the
+   * panel's size. Unattached, they are world-space and the panel stays where it is put.
+   */
+  export interface CreateHudPanelOptions {
+    /** Its name, and how it is updated or removed. Never generated. */
+    readonly id: string;
+    /** Attach to this entity; omitted means `position` and `yaw` are world-space. */
+    readonly entityId?: string;
+    /** Where it is: local offset when attached, otherwise world-space. */
+    readonly position: Vec3Like;
+    /** A turn about up, in radians: local when attached, otherwise world-space. */
+    readonly yaw?: number;
+    /** How wide, in the same units as `position`. */
+    readonly width: number;
+    /** How tall, in the same units as `position`. */
+    readonly height: number;
+    /** The caption along the top, at most 64 characters. */
+    readonly label: string;
+    /** How full the bar is, read against `max`. */
+    readonly value: number;
+    /** The value `value` has when the bar is full. Must be greater than zero. */
+    readonly max: number;
+  }
+
+  /** A placed panel; the same id can be updated or removed without creating another one. */
+  export interface HudPanelHandle {
+    readonly id: string;
+    /** Moves the bar. Clamped to 0..`max` when drawn. */
+    setValue(value: number): void;
+    /** Changes the caption, at most 64 characters. */
+    setLabel(label: string): void;
+    /** Takes the panel out of the world. */
+    remove(): void;
+  }
+
+  /**
+   * Puts a labelled progress panel on a quad in the world.
+   *
+   * A panel is a canvas-backed quad in the world, like a screen's picture, so it is cheap — but
+   * it is still one of 64 a place may keep alive, so create one and change it through the handle
+   * rather than creating it again each tick.
+   */
+  export function createHudPanel(
+    options: CreateHudPanelOptions,
+  ): HudPanelHandle;
 
   /* -------------------------------------------------------------------- output */
 
