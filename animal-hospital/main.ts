@@ -365,6 +365,8 @@ function updatePatientWaitingPatientlyAtCounter(patient: Patient) {
 }
 
 function updatePatientWalkingToBed(patient: Patient) {
+  patient.location[2] -= 0.3;
+  $.moveEntity(patient.id, patient.location);
 }
 
 function updatePatientWaitingInBed(patient: Patient) {
@@ -384,6 +386,15 @@ function makePatentAtReceptionPatent() {
       break;
     }
   }
+}
+
+function giveLabelToPatient(patient: Patient) {
+  patient.stage = "WalkingToBed";
+  clearPhoto();
+  formFilledOut = false;
+  computerProcessedForms = false;
+  labelPrinted = false;
+  holdingLabel = false;
 }
 
 function printLabel() {
@@ -416,23 +427,30 @@ onTick((info: any) => {
       if (!formsShown && !formFilledOut) {
         showForms();
       }
-    }
-    if (event.kind === "entity-used" && event.entityId === FORMS_ID) {
+    } else if (event.kind === "entity-used" && event.entityId === FORMS_ID) {
       fillOutForms();
-    }
-    if (event.kind === "entity-used" && event.entityId === COMPUTER_PROP) {
+    } else if (event.kind === "entity-used" && event.entityId === COMPUTER_PROP) {
       if (!computerProcessedForms) {
         computerProcessedForms = true;
       }
-    }
-    if (event.kind === "entity-used" && event.entityId === PRINTER_PROP) {
+    } else if (event.kind === "entity-used" && event.entityId === PRINTER_PROP) {
       if (computerProcessedForms && !labelPrinted) {
         $.log("PRINTER");
         printLabel();
       }
-    }
-    if (event.kind === "entity-used" && event.entityId === LABEL_ID) {
+    } else if (event.kind === "entity-used" && event.entityId === LABEL_ID) {
       takeLabel();
+    } else if (event.kind === "npc-talk") {
+      if (holdingLabel) {
+        for (let patient of patients) {
+          if (patient.stage === "WaitingAtCounter" || patient.stage === "WaitingPatientlyAtCounter") {
+            if (event.entityId === patient.id) {
+              giveLabelToPatient(patient);
+            }
+            break;
+          }
+        }
+      }
     }
   }
   updatePatients();
