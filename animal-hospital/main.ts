@@ -62,14 +62,155 @@ const patientKinds: { name: string, model: string, }[] = [
   { name: "Melty", model: "melty.sdfmod", },
 ];
 
-type PatientStage = 
-  | "WalkingToCounter"
-  | "TurningTowardsCounter"
-  | "WalkingToCounter2"
-  | "WaitingAtCounter"
-  | "WaitingPatientlyAtCounter"
-  | "WalkingToBed"
-  | "WaitingInBed";
+/**
+ * ## Why this is a generator and not `async`/`await`
+ *
+ * **The place interpreter never pumps QuickJS's promise job queue.** It runs
+ * handlers with `context.callFunction` and never calls
+ * `runtime.executePendingJobs()`, so an `await` in a place script parks
+ * forever. A generator is the coroutine that works there: the compiled
+ * `next(result)` is synchronous, so `onTick` can resume the journey directly.
+ *
+ * The generator still gives the linear style of `async`/`await`, and the
+ * action/result table below keeps every `yield*` result typed, including the
+ * branches that depend on it.
+ */
+
+/**
+ * One step a journey can take, and the value the executor sends back when it
+ * finishes. Adding an action means adding a line here; TypeScript then makes
+ * every `switch` in the executor handle it.
+ */
+type ActionSpec = {
+  walkTo: { args: [ x: number, z: number, ]; result: void; };
+  turnTo: { args: [ yaw: number, ]; result: void; };
+  waitAtCounter: { args: []; result: "served" | "impatient"; };
+  waitInBed: { args: []; result: void; };
+  ask: { args: [ prompt: string, options: readonly string[], ]; result: number; };
+};
+
+type ActionName = keyof ActionSpec;
+type ActionResult<K extends ActionName> = ActionSpec[K]["result"];
+
+/** `next()` takes no argument for a void result, and one for anything else. */
+type ResultArgs<K extends ActionName> =
+  ActionResult<K> extends void ? [] : [ result: ActionResult<K>, ];
+
+/** The action as plain data, which is what the executor reads. */
+type JourneyAction = {
+  [K in ActionName]: { type: K, args: ActionSpec[K]["args"], };
+}[ActionName];
+
+/**
+ * A compiled step: the action and the continuation that accepts its result.
+ *
+ * **The union is keyed by `type`**, so `switch (step.type)` narrows both
+ * `args` and the signature of `next`. That is the type safety the promise
+ * version was reaching for, and it is what makes branching on a result —
+ * `if ((yield* ctx.waitAtCounter()) === "served")` — checked at the call site.
+ */
+type JourneyNode = {
+  [K in ActionName]: {
+    type: K,
+    args: ActionSpec[K]["args"],
+    next(...args: ResultArgs<K>): Journey,
+  };
+}[ActionName];
+
+type Journey =
+  | JourneyNode
+  | { type: "Done", };
+
+const JOURNEY_DONE: Journey = { type: "Done", };
+
+/** What a journey author writes `yield*` against. */
+type JourneyCtx = {
+  [K in ActionName]: (
+    ...args: ActionSpec[K]["args"]
+  ) => Generator<JourneyAction, ActionResult<K>, unknown>;
+};
+
+/**
+ * The one place a result is cast.
+ *
+ * **`Generator<Y, R, N>` has a single `N` for every yield**, so TypeScript
+ * cannot say "the value sent after this yield has this action's result
+ * type". Each action method fixes its own `R`, and the cast is confined
+ * here; the author's `yield* ctx.foo()` still sees the precise type.
+ */
+function* perform<K extends ActionName>(
+  type: K,
+  ...args: ActionSpec[K]["args"]
+): Generator<JourneyAction, ActionResult<K>, unknown> {
+  return (yield { type, args, } as unknown as JourneyAction) as ActionResult<K>;
+}
+
+const journeyCtx: JourneyCtx = {
+  walkTo: (x, z) => perform("walkTo", x, z),
+  turnTo: yaw => perform("turnTo", yaw),
+  waitAtCounter: () => perform("waitAtCounter"),
+  waitInBed: () => perform("waitInBed"),
+  ask: (prompt, options) => perform("ask", prompt, options),
+};
+
+/**
+ * Compiles a generator into a lazy chain of typed steps.
+ *
+ * **The generator is the coroutine, not the data.** Calling `source(ctx)`
+ * runs nothing; the first `next()` runs to the first `yield`, and each
+ * `step.next(result)` resumes it to the following `yield`. That is why a
+ * compiled journey is single-use: its `next` closures hold one generator.
+ * Compile one per patient.
+ */
+function compileJourney(
+  source: (ctx: JourneyCtx) => Generator<JourneyAction, void, unknown>,
+): Journey {
+  const generator = source(journeyCtx);
+  return stepToNode(generator, generator.next(undefined));
+}
+
+/** One cast: TypeScript cannot correlate `action.type` with `next`. */
+function stepToNode(
+  generator: Generator<JourneyAction, void, unknown>,
+  step: IteratorResult<JourneyAction, void>,
+): Journey {
+  if (step.done) return JOURNEY_DONE;
+  const action = step.value;
+  return {
+    type: action.type,
+    args: action.args,
+    next: (...args: unknown[]) => stepToNode(generator, generator.next(args[0])),
+  } as Journey;
+}
+
+/** The first bed in the north ward, approached from the corridor. */
+const BED_APPROACH_X = -190.0;
+const BED_APPROACH_Z = -24.9;
+
+/**
+ * The intake journey, written linearly.
+ *
+ * **`yield*` is the `await` of this coroutine**: it hands one action to the
+ * executor and resumes with the value the executor sends back. The branch
+ * on `outcome` is ordinary TypeScript, checked against the `waitAtCounter`
+ * result type.
+ */
+function* patientJourney(ctx: JourneyCtx): Generator<JourneyAction, void, unknown> {
+  yield* ctx.walkTo(-267.0, -15.0);
+  yield* ctx.turnTo(-0.5 * Math.PI);
+  yield* ctx.walkTo(-290.0, -15.0);
+
+  const outcome = yield* ctx.waitAtCounter();
+  if (outcome === "served") {
+    yield* ctx.turnTo(0.5 * Math.PI);
+    yield* ctx.walkTo(-267.0, -15.0);
+    yield* ctx.turnTo(Math.PI);
+    yield* ctx.walkTo(-267.0, BED_APPROACH_Z);
+    yield* ctx.turnTo(0.5 * Math.PI);
+    yield* ctx.walkTo(BED_APPROACH_X, BED_APPROACH_Z);
+    yield* ctx.waitInBed();
+  }
+}
 
 const PATIENT_ENTRY_START_LOCATION: [ number, number, number, ] = [ -267, -52.5, 85, ];
 const COUNTER_Z = -15.0;
@@ -232,14 +373,43 @@ function updateComputerPanel(now: number) {
   }
 }
 
+/**
+ * Mutable state for one action. The action data itself stays immutable; the
+ * counters and the outcome belong here, not in the journey.
+ */
+type RunState = {
+  walkTo: { x: number, z: number, };
+  turnTo: { target: number, };
+  waitAtCounter: {
+    ticks: number,
+    beingPatient: boolean,
+    outcome: "served" | "impatient" | undefined,
+  };
+  waitInBed: Record<string, never>;
+  ask: { answer: number | undefined, };
+};
+
+/**
+ * A journey node paired with the state its action needs while it runs.
+ *
+ * **`node` is the typed continuation**, so `finishAction` can call
+ * `node.next(...)` with the result that action's type declares.
+ */
+type RunningAction = {
+  [K in ActionName]: {
+    type: K,
+    node: Extract<JourneyNode, { type: K, }>,
+    state: RunState[K],
+  };
+}[ActionName];
+
 type Patient = {
   id: string,
   name: string,
-  stage: PatientStage,
   location: [ number, number, number, ],
   yaw: number,
-  // used for timing stuff
-  tickCounter1: number,
+  journey: Journey,
+  running: RunningAction | undefined,
 };
 
 const patients: Patient[] = [];
@@ -260,10 +430,10 @@ function spawnPatient(): string {
   patients.push({
     id,
     name: patientKind.name,
-    stage: "WalkingToCounter",
     location,
     yaw: Math.PI,
-    tickCounter1: 0,
+    journey: compileJourney(patientJourney),
+    running: undefined,
   });
   return id;
 }
@@ -341,118 +511,199 @@ function hideForm() {
   formsShown = false;
 }
 
+const PATIENT_STEP = 0.3;
+const PATIENT_TURN_STEP = 0.1;
+
+/** Shortest signed angle from `from` to `to`, in `[-π, π]`. */
+function wrapAngle(angle: number): number {
+  while (angle > Math.PI) angle -= 2 * Math.PI;
+  while (angle < -Math.PI) angle += 2 * Math.PI;
+  return angle;
+}
+
 function updatePatients() {
   for (let patient of patients) {
-    switch (patient.stage) {
-      case "WalkingToCounter":
-        updatePatientWalkingToCounter(patient);
-        break;
-      case "TurningTowardsCounter":
-        updatePatientTurningTowardsCounter(patient); 
-        break;
-      case "WalkingToCounter2":
-        updatePatientWalkingToCounter2(patient);
-        break;
-      case "WaitingAtCounter":
-        updatePatientWaitingAtCounter(patient);
-        break;
-      case "WaitingPatientlyAtCounter":
-        updatePatientWaitingPatientlyAtCounter(patient);
-        break;
-      case "WalkingToBed":
-        updatePatientWalkingToBed(patient);
-        break;
-      case "WaitingInBed":
-        updatePatientWaitingInBed(patient);
-        break;
-      default: {
-        let x: never = patient.stage;
-        throw new Error(`Unreachable: ${x}`);
+    updatePatientJourney(patient);
+  }
+}
+
+function beginAction(patient: Patient, node: JourneyNode): RunningAction {
+  switch (node.type) {
+    case "walkTo":
+      return { type: "walkTo", node, state: { x: node.args[0], z: node.args[1], }, };
+    case "turnTo":
+      return { type: "turnTo", node, state: { target: node.args[0], }, };
+    case "waitAtCounter":
+      return {
+        type: "waitAtCounter",
+        node,
+        state: { ticks: 0, beingPatient: false, outcome: undefined, },
+      };
+    case "waitInBed":
+      return { type: "waitInBed", node, state: {}, };
+    case "ask":
+      $.openDialog({
+        entityId: patient.id,
+        prompt: node.args[0],
+        options: node.args[1],
+      });
+      return { type: "ask", node, state: { answer: undefined, }, };
+  }
+}
+
+/**
+ * Advances one patient's journey by at most one action.
+ *
+ * **Synchronous, because the coroutine is a generator.** When an action
+ * finishes, `finishAction` resumes the generator and hands back the next
+ * step immediately; there is no tick of latency and no `advancing` flag.
+ */
+function updatePatientJourney(patient: Patient) {
+  if (patient.journey.type === "Done") return;
+
+  if (patient.running === undefined) {
+    patient.running = beginAction(patient, patient.journey);
+  }
+  if (!tickAction(patient, patient.running)) return;
+
+  const finished = patient.running;
+  patient.running = undefined;
+  patient.journey = finishAction(finished);
+}
+
+/** Runs one tick of an action; returns whether the action is complete. */
+function tickAction(patient: Patient, running: RunningAction): boolean {
+  switch (running.type) {
+    case "walkTo": {
+      const dx = running.state.x - patient.location[0];
+      const dz = running.state.z - patient.location[2];
+      const distance = Math.hypot(dx, dz);
+      if (distance <= PATIENT_STEP) {
+        patient.location[0] = running.state.x;
+        patient.location[2] = running.state.z;
+        moveEntity(patient.id, patient.location, patient.yaw);
+        return true;
       }
+      patient.location[0] += (dx / distance) * PATIENT_STEP;
+      patient.location[2] += (dz / distance) * PATIENT_STEP;
+      moveEntity(patient.id, patient.location, patient.yaw);
+      return false;
     }
+    case "turnTo": {
+      const remaining = wrapAngle(running.state.target - patient.yaw);
+      if (Math.abs(remaining) <= PATIENT_TURN_STEP) {
+        patient.yaw = running.state.target;
+        moveEntity(patient.id, patient.location, patient.yaw);
+        return true;
+      }
+      patient.yaw += Math.sign(remaining) * PATIENT_TURN_STEP;
+      moveEntity(patient.id, patient.location, patient.yaw);
+      return false;
+    }
+    case "waitAtCounter":
+      tickWaitAtCounter(patient, running);
+      return running.state.outcome !== undefined;
+    case "waitInBed":
+      return false;
+    case "ask":
+      return running.state.answer !== undefined;
   }
 }
 
-function updatePatientWalkingToCounter(patient: Patient) {
-  patient.location[2] -= 0.3;
-  if (patient.location[2] <= COUNTER_Z) {
-    patient.location[2] = COUNTER_Z;
-    patient.stage = "TurningTowardsCounter";
+/**
+ * The waiting-at-the-counter routine, unchanged in behaviour: the patient
+ * nags on the same ticks, becomes patient when the forms are done, and goes
+ * back to nagging after 2000 ticks if nobody comes.
+ */
+function tickWaitAtCounter(
+  patient: Patient,
+  running: Extract<RunningAction, { type: "waitAtCounter", }>,
+) {
+  const state = running.state;
+  if (state.outcome !== undefined) return;
+
+  if (state.beingPatient) {
+    if (state.ticks === 0) $.narrate(patient.id, "");
+    state.ticks++;
+    if (state.ticks > 2000) {
+      state.beingPatient = false;
+      state.ticks = 0;
+    }
+    return;
   }
-  moveEntity(patient.id, patient.location);
+
+  switch (state.ticks) {
+    case 0:
+      $.narrate(patient.id, "Hello!");
+      break;
+    case 300:
+      $.narrate(patient.id, "I am here for an appointment.");
+      break;
+    case 600:
+      $.narrate(patient.id, "");
+      break;
+    case 900:
+      $.narrate(patient.id, "Hello! Is anybody there?");
+      break;
+    case 1200:
+      $.narrate(patient.id, "");
+      break;
+    case 1500:
+      $.narrate(patient.id, "Hello Hello Hello!!! Does anybody work here!!!");
+      break;
+  }
+  state.ticks++;
 }
 
-function updatePatientTurningTowardsCounter(patient: Patient) {
-  patient.yaw += 0.1;
-  if (patient.yaw >= 3.0 * Math.PI / 2) {
-    patient.yaw = -0.5 * Math.PI;
-    patient.stage = "WalkingToCounter2";
+/** Resumes the generator, and returns the next action or `Done`. */
+function finishAction(running: RunningAction): Journey {
+  switch (running.type) {
+    case "walkTo":
+      return running.node.next();
+    case "turnTo":
+      return running.node.next();
+    case "waitInBed":
+      return running.node.next();
+    case "waitAtCounter":
+      return running.node.next(running.state.outcome ?? "impatient");
+    case "ask":
+      return running.node.next(running.state.answer ?? 0);
   }
-  moveEntity(patient.id, patient.location, patient.yaw);
 }
 
-function updatePatientWalkingToCounter2(patient: Patient) {
-  patient.location[0] -= 0.3;
-  if (patient.location[0] <= COUNTER_X) {
-    patient.location[0] = COUNTER_X;
-    patient.stage = "WaitingAtCounter";
-    patient.tickCounter1 = 0;
+/** Tells a patient at the counter that they have been seen. */
+function servePatient(patient: Patient) {
+  if (patient.running?.type === "waitAtCounter") {
+    patient.running.state.outcome = "served";
   }
-  moveEntity(patient.id, patient.location);
 }
 
-function updatePatientWaitingAtCounter(patient: Patient) {
-  if (patient.tickCounter1 === 0) {
-    $.narrate(patient.id, "Hello!");
-  } else if (patient.tickCounter1 === 300) {
-    $.narrate(patient.id, "I am here for an appointment.");
-  } else if (patient.tickCounter1 === 600) {
+/** Stops the nagging, without finishing the wait. */
+function makePatientWaitPatiently(patient: Patient) {
+  if (patient.running?.type === "waitAtCounter") {
+    patient.running.state.beingPatient = true;
+    patient.running.state.ticks = 0;
     $.narrate(patient.id, "");
-  } else if (patient.tickCounter1 === 900) {
-    $.narrate(patient.id, "Hello! Is anybody there?");
-  } else if (patient.tickCounter1 === 1200) {
-    $.narrate(patient.id, "");
-  } else if (patient.tickCounter1 === 1500) {
-    $.narrate(patient.id, "Hello Hello Hello!!! Does anybody work here!!!");
   }
-  patient.tickCounter1++;
-}
-
-function updatePatientWaitingPatientlyAtCounter(patient: Patient) {
-  $.narrate(patient.id, "");
-  patient.tickCounter1++;
-  if (patient.tickCounter1 > 2000) {
-    patient.tickCounter1 = 0;
-    patient.stage = "WaitingAtCounter";
-  }
-}
-
-function updatePatientWalkingToBed(patient: Patient) {
-  patient.location[2] -= 0.3;
-  $.moveEntity(patient.id, patient.location);
-}
-
-function updatePatientWaitingInBed(patient: Patient) {
 }
 
 function fillOutForms() {
   formFilledOut = true;
   hideForm();
-  makePatentAtReceptionPatent();
+  makePatientAtReceptionWaitPatiently();
 }
 
-function makePatentAtReceptionPatent() {
+function makePatientAtReceptionWaitPatiently() {
   for (let patient of patients) {
-    if (patient.stage === "WaitingAtCounter") {
-      patient.stage = "WaitingPatientlyAtCounter";
-      patient.tickCounter1 = 0;
+    if (patient.running?.type === "waitAtCounter") {
+      makePatientWaitPatiently(patient);
       break;
     }
   }
 }
 
 function giveLabelToPatient(patient: Patient) {
-  patient.stage = "WalkingToBed";
+  servePatient(patient);
   clearPhoto();
   formFilledOut = false;
   computerProcessedForms = false;
@@ -468,8 +719,9 @@ function giveLabelToPatient(patient: Patient) {
  * There is a fallback because a label can still be printed if the queue changes underneath it.
  */
 function patientForLabel(): Patient | undefined {
-  return patients.find(patient => patient.stage === "WaitingPatientlyAtCounter")
-    ?? patients.find(patient => patient.stage === "WaitingAtCounter");
+  return patients.find(patient =>
+    patient.running?.type === "waitAtCounter" && patient.running.state.beingPatient
+  ) ?? patients.find(patient => patient.running?.type === "waitAtCounter");
 }
 
 function printLabel() {
@@ -540,12 +792,19 @@ onTick((info: any) => {
     } else if (event.kind === "npc-talk") {
       if (holdingLabel) {
         for (let patient of patients) {
-          if (patient.stage === "WaitingAtCounter" || patient.stage === "WaitingPatientlyAtCounter") {
+          if (patient.running?.type === "waitAtCounter") {
             if (event.entityId === patient.id) {
               giveLabelToPatient(patient);
             }
             break;
           }
+        }
+      }
+    } else if (event.kind === "npc-choose") {
+      for (let patient of patients) {
+        if (event.entityId === patient.id && patient.running?.type === "ask") {
+          patient.running.state.answer = event.option;
+          break;
         }
       }
     }
