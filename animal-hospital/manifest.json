@@ -1,9 +1,9 @@
 {
   "name": "animal-hospital",
   "seed": 20260901,
-  "entry": "main.ts",
+  "entry": "main.luau",
   "scripts": [
-    "main.ts"
+    "main.luau"
   ],
   "world": "flat",
   "spawn": [
