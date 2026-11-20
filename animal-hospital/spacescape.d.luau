@@ -522,6 +522,7 @@ export type Spacescape = {
 
 	-- HUD panels
 	createHudPanel: (options: CreateHudPanelOptions) -> HudPanelHandle,
+	removeHudPanel: (id: string) -> (),
 
 	-- output
 	log: (text: string) -> (),
